@@ -111,12 +111,18 @@ async def process_project(project):
                 f"معدل التوظيف: {details['moaadal_altoatheef']}\n\n"
                 f"{description}"
             )
+            print(message)
             success = await send_telegram_message(message)
+            if success:
+                print("message sent successfuly")
             if not success:
                 await send_telegram_message(f"❌ Failed to send project: {title}", is_error=True)
+                print(f"Failed to send project: {title}")
             await asyncio.sleep(1)  # Non-blocking sleep
-    except (ValueError, AttributeError) as e:
-        await send_telegram_message(f"📈 Rate calculation error: {str(e)}", is_error=True)
+    except (ValueError, AttributeError):
+        if employment_rate != "لم يحسب بعد":
+            print("Could not parse employment rate", employment_rate)
+        pass
     except Exception as e:
         await send_telegram_message(f"⚠️ Unexpected project error: {str(e)}", is_error=True)
 
