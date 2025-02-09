@@ -1,0 +1,10 @@
+{
+    "$schema": "https://raw.githubusercontent.com/railwayapp/cli/master/static/railway.schema.json",
+    "crons": [
+      {
+        "name": "Project Checker",
+        "schedule": "*/5 * * * *",
+        "command": "python main.py"
+      }
+    ]
+  }
