@@ -120,8 +120,8 @@ async def process_project(project):
                 print(f"Failed to send project: {title}")
             await asyncio.sleep(1)  # Non-blocking sleep
     except (ValueError, AttributeError):
-        if employment_rate != "لم يحسب بعد":
-            print("Could not parse employment rate", employment_rate)
+        if details['moaadal_altoatheef'] != "لم يحسب بعد":
+            print("Could not parse employment rate", details['moaadal_altoatheef'])
         pass
     except Exception as e:
         await send_telegram_message(f"⚠️ Unexpected project error: {str(e)}", is_error=True)
