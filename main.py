@@ -26,6 +26,7 @@ async def send_telegram_message(message, is_error=False):
             parse_mode='Markdown'
         )
         print(f"{'Error ' if is_error else ''}Message sent successfully")
+        print("___________________________________________________________________")
         return True
     except Exception as e:
         print(f"Critical error sending {'error ' if is_error else ''}message: {str(e)}")
@@ -113,8 +114,6 @@ async def process_project(project):
             )
             print(message)
             success = await send_telegram_message(message)
-            if success:
-                print("message sent successfuly")
             if not success:
                 await send_telegram_message(f"❌ Failed to send project: {title}", is_error=True)
                 print(f"Failed to send project: {title}")
