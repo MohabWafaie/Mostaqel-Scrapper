@@ -23,7 +23,7 @@ async def send_telegram_message(message, is_error=False):
         await bot.send_message(
             chat_id=CHAT_ID,
             text=message,
-            parse_mode='Markdown'
+            parse_mode='HTML'
         )
         print(f"{'Error ' if is_error else ''}Message sent successfully")
         print("___________________________________________________________________")
@@ -104,7 +104,7 @@ async def process_project(project):
         employment_rate = float(details['moaadal_altoatheef'].rstrip('%'))
         if employment_rate >= 80:
             message = (
-                f"**{title}**\n"
+                f"<b>{title}</b>\n"
                 f"URL: {project_url}\n"
                 f"تاريخ النشر: {details['tarikh_alnashr']}\n"
                 f"الميزانية: {details['almeezaneya']}\n"
