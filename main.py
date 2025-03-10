@@ -102,7 +102,7 @@ async def process_project(project):
 
     try:
         employment_rate = float(details['moaadal_altoatheef'].rstrip('%'))
-        if employment_rate >= 80:
+        if employment_rate >= 70:
             message = (
                 f"<b>{title}</b>\n"
                 f"URL: {project_url}\n"
