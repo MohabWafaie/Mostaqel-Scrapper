@@ -32,22 +32,24 @@ async def send_telegram_message(message, is_error=False):
         print(f"Critical error sending {'error ' if is_error else ''}message: {str(e)}")
         return False
 
-def load_latest_project():
+def load_latest_projects():
+    """Load the latest two project titles from the persistence file."""
     try:
         with open(PERSISTENCE_FILE, 'r') as f:
-            return f.read().strip()
+            return f.read().strip().split('\n')[:2]  # Load up to two titles
     except FileNotFoundError:
-        return None
+        return []
     except Exception as e:
-        print(f"Error loading latest project: {str(e)}")
+        print(f"Error loading latest projects: {str(e)}")
         raise  # Propagate error to caller
 
-def save_latest_project(title):
+def save_latest_projects(titles):
+    """Save the latest two project titles to the persistence file."""
     try:
         with open(PERSISTENCE_FILE, 'w') as f:
-            f.write(title)
+            f.write('\n'.join(titles[:2]))  # Save up to two titles
     except Exception as e:
-        print(f"Error saving latest project: {str(e)}")
+        print(f"Error saving latest projects: {str(e)}")
         raise  # Propagate error to caller
 
 def get_soup(url):
@@ -126,7 +128,7 @@ async def process_project(project):
         await send_telegram_message(f"⚠️ Unexpected project error: {str(e)}", is_error=True)
 
 async def check_projects():
-    """Main project checking logic with original order processing"""
+    """Main project checking logic with original order processing."""
     try:
         print("\nStarting project check...")
         url = 'https://mostaql.com/projects?category=development,marketing,support&budget_max=10000&sort=latest'
@@ -142,10 +144,10 @@ async def check_projects():
             return
 
         try:
-            current_latest = load_latest_project()
+            latest_projects = load_latest_projects()
         except Exception as e:
             await send_telegram_message(f"📁 Persistence load error: {str(e)}", is_error=True)
-            current_latest = None
+            latest_projects = []
 
         new_projects = []
 
@@ -155,8 +157,8 @@ async def check_projects():
                 title_element = project.find('h2', class_='mrg--bt-reset').find('a')
                 title = title_element.text.strip()
                 
-                # Stop when reaching the last processed project
-                if current_latest and title == current_latest:
+                # Stop when reaching one of the last processed projects
+                if latest_projects and title in latest_projects:
                     print("Reached last known project, stopping collection")
                     break
                 
@@ -173,14 +175,16 @@ async def check_projects():
         for project in new_projects:
             await process_project(project)
 
-        # Update persistence with the newest project
+        # Update persistence with the newest two projects
         try:
-            latest_title_element = new_projects[0].find('h2', class_='mrg--bt-reset').find('a')
-            latest_title = latest_title_element.text.strip()
-            save_latest_project(latest_title)
-            print(f"Saved new latest project: {latest_title}")
+            latest_titles = [
+                project.find('h2', class_='mrg--bt-reset').find('a').text.strip()
+                for project in new_projects[:2]
+            ]
+            save_latest_projects(latest_titles)
+            print(f"Saved new latest projects: {latest_titles}")
         except Exception as e:
-            await send_telegram_message(f"💾 Failed to save latest project: {str(e)}", is_error=True)
+            await send_telegram_message(f"💾 Failed to save latest projects: {str(e)}", is_error=True)
 
     except Exception as e:
         await send_telegram_message(f"🔥 Critical error in check_projects: {str(e)}", is_error=True)
