@@ -177,10 +177,16 @@ async def check_projects():
 
         # Update persistence with the newest two projects
         try:
+            # Extract titles from new projects
             latest_titles = [
                 project.find('h2', class_='mrg--bt-reset').find('a').text.strip()
                 for project in new_projects[:2]
             ]
+
+            # If there is only one new project, append the most recent saved project
+            if len(latest_titles) < 2 and latest_projects:
+                latest_titles.append(latest_projects[0])
+
             save_latest_projects(latest_titles)
             print(f"Saved new latest projects: {latest_titles}")
         except Exception as e:
