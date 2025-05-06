@@ -64,6 +64,19 @@ def get_soup(url):
             time.sleep(5)
     return None
 
+def extract_meta_rows(project_soup):
+    meta_rows = project_soup.find_all('div', class_='meta-row')
+    extracted = {}
+    for row in meta_rows:
+        label_div = row.find('div', class_='meta-label')
+        value_div = row.find('div', class_='meta-value')
+        if label_div and value_div:
+            label = label_div.text.strip()
+            value = value_div.text.strip()
+            extracted[label] = value
+    return extracted
+
+
 async def process_project(project):
     """Process individual project with comprehensive error handling"""
     try:
@@ -88,16 +101,24 @@ async def process_project(project):
 
     details = {}
     try:
-        project_details = project_soup.find('div', id='project-meta-panel')
-        if project_details:
-            details = {
-                'tarikh_alnashr': project_details.find('td', string='تاريخ النشر').find_next_sibling('td').text.strip(),
-                'almeezaneya': project_details.find('td', string='الميزانية').find_next_sibling('td').text.strip(),
-                'muddat_altanfeeth': project_details.find('td', string='مدة التنفيذ').find_next_sibling('td').text.strip(),
-                'moaadal_altoatheef': project_details.find('span', string='معدل التوظيف').find_parent('tr').find_all('td')[1].text.strip()
-            }
-        else:
-            details = {key: "Not found" for key in ['tarikh_alnashr', 'almeezaneya', 'muddat_altanfeeth', 'moaadal_altoatheef']}
+        # project_details = project_soup.find('div', id='project-meta-panel')
+        # if project_details:
+        #     details = {
+        #         'tarikh_alnashr': project_details.find('td', string='تاريخ النشر').find_next_sibling('td').text.strip(),
+        #         'almeezaneya': project_details.find('td', string='الميزانية').find_next_sibling('td').text.strip(),
+        #         'muddat_altanfeeth': project_details.find('td', string='مدة التنفيذ').find_next_sibling('td').text.strip(),
+        #         'moaadal_altoatheef': project_details.find('span', string='معدل التوظيف').find_parent('tr').find_all('td')[1].text.strip()
+        #     }
+        # else:
+        #     details = {key: "Not found" for key in ['tarikh_alnashr', 'almeezaneya', 'muddat_altanfeeth', 'moaadal_altoatheef']}
+        meta_data = extract_meta_rows(project_soup)
+        details = {
+            'tarikh_alnashr': meta_data.get('تاريخ النشر', 'Not found'),
+            'almeezaneya': meta_data.get('الميزانية', 'Not found'),
+            'muddat_altanfeeth': meta_data.get('مدة التنفيذ', 'Not found'),
+            'moaadal_altoatheef': meta_data.get('معدل التوظيف', 'Not found'),
+        }
+
     except Exception as e:
         await send_telegram_message(f"📊 Detail extraction error: {str(e)}", is_error=True)
         details = {key: "Error" for key in ['tarikh_alnashr', 'almeezaneya', 'muddat_altanfeeth', 'moaadal_altoatheef']}
