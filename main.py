@@ -116,7 +116,7 @@ async def process_project(project):
             'tarikh_alnashr': meta_data.get('تاريخ النشر', 'Not found'),
             'almeezaneya': meta_data.get('الميزانية', 'Not found'),
             'muddat_altanfeeth': meta_data.get('مدة التنفيذ', 'Not found'),
-            'moaadal_altoatheef': meta_data.get('معدل التوظيف', 'Not found'),
+            'moaadal_altoatheef': project_details.find('span', string='معدل التوظيف').find_parent('tr').find_all('td')[1].text.strip()
         }
 
     except Exception as e:
