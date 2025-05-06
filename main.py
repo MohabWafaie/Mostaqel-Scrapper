@@ -111,6 +111,7 @@ async def process_project(project):
         #     }
         # else:
         #     details = {key: "Not found" for key in ['tarikh_alnashr', 'almeezaneya', 'muddat_altanfeeth', 'moaadal_altoatheef']}
+        project_details = project_soup.find('div', id='project-meta-panel')
         meta_data = extract_meta_rows(project_soup)
         details = {
             'tarikh_alnashr': meta_data.get('تاريخ النشر', 'Not found'),
